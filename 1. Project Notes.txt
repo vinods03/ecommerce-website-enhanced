@@ -1,0 +1,138 @@
+#angular #aws
+
+Please refer https://github.com/vinods03/ecommerce-website for an ecommerce website project.
+Presentation tier is built using: Angular, HTML, CSS
+Application tier is built using: API Gateway, Lambda
+Data tier is built using: DynamoDB
+Please go through the README file to understand the features implemented so far and features yet to be implemented and pls DM any suggestions / questions !
+
+Below is the general layout / features of the website:
+
+The menu bar at the top has the ecommerce website icon on the left hand corner and a Cart icon on the right corner.
+Product categories are listed on the side menu and products are listed in the main window.
+The products displayed will vary based on the product category chosen.
+You can click on the Add to cart button and see the cart icon getting updated - number of items and total price will be shown.
+You can click on a product url or name to get more details about the product and you can Add to cart from this screen as well.
+Next, when you click on the Cart icon, you will be taken to the Cart details screen where you can see the list of items added to cart, value of each item and the totals.
+From here, if you click on the "Checkout" button, you will be taken to a form, where you will have to provide name, address and credit card details.
+Once valid input is provided in the form, you will be able to click the "Purchase" button. When this is done, an entry is made in the DynamoDB table with all details captured above (name, address, cart items, total value etc) and a reference number (called Order Tracking number) is returned to the user.
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Below enhancements will be done in the next phase:
+Authentication / auth guard / maintain user info across page refreshes implementation using localStorage -> COMPLETED
+Improving the Cart features - clear cart, add / remove item from cart etc -> COMPLETED
+Improving Cart features - quantity -> COMPLETED
+Common navigation bar across multiple components -> COMPLETED
+COFFEE MUGS - display in full -> COMPLETED
+forms - auth & checkout center alignment -> COMPLETED
+cart status (quantity, price) shows even after logout -> COMPLETED
+Maintaining cart info across page refreshes and logins -> COMPLETED
+Show user email at the header -> COMPLETED
+Retrieve cart info based on user -> COMPLETED 
+
+Credit Card Processing and Validation
+Add more products, product categories and improve the styling of the website
+
+
+~~~~~~~~~~~~~~~~~~
+
+Common navigation bar across multiple components:
+
+Initially i had this - icon + cart-status + logout button - on every component.
+To achieve a common navigation bar across all components, in app.component.html i added header, master-header classes and did appropriate styling in css for these classes.
+Note that for product-list in products-by-product-category.component.html, i have used display: grid. 
+Most others are display: flex.
+
+i had a separate header component initially for common header but later this was never used. 
+Instead used above method.
+
+Note that the home component is also not used.
+products-by-product-category.html has aside and main sections instead.
+
+~~~~~~~~~~~~~~~~~~~~
+
+Maintaining cart info across page refreshes and logins:
+
+In cart.service.ts, in the addToCart() function & removeFromCart() function, added:
+localStorage.setItem('cartData', JSON.stringify(this.cartItems));
+Then calculate & populate total quantity/price for this retrieved set of cart items.
+
+In cart.service.ts, added a new function: autoLoadCart() that will retrieve cart items from local storage:
+this.cartItems = JSON.parse(localStorage.getItem('cartData') || '{}');
+Then calculate & populate total quantity/price for this retrieved set of cart items.
+
+In app.component.ts, apart from invoking the authService.autoLogin() method (for maintaining user info across page refreshes), invoke the cartService.autoLoadCart() method.
+When the above was done, the cart-status was getting refreshed only after a refresh of the page and not immediately after login.
+
+To show the cart-status right after login, invoke autoLoadCart() in products-by-product-category component as this is the landing page upon successful login.
+Now, cart-status was correct at the time of login itself and page refresh was not needed.
+
+~~~~~~~~~~~~~~~~~~~~
+
+cart status (quantity, price) shows even after logout:
+
+In cart-status.component.ts, added:
+
+user: User | null | undefined = null;
+this.authService.user.subscribe((data) => {
+      this.user = data;
+    });
+
+In cart-status.component.html, added:
+
+*ngIf="user" in the <div> class displaying the numbers.
+
+Similarly, the button "Logout" was showing in authentication.component.html even when no user was logged in.
+Added similar logic in authentication.component.html & ts files.
+
+In authentication-service.ts, in the signOut() method, remember to add:
+localStorage.setItem('userData', JSON.stringify(null));
+
+Without this, what was happening was, when you clicked on Logout button, the cart icon/numbers/logout button disappeared because of this.user.next(null).
+But, when you went to localhost:4200, app.component.ts invokes autoLogin() which gets user info from JSON.parse(localStorage.getItem('userData') || '{}');
+It gets a valid user and so, cart-icon/numbers/logout button show up even though they shouldnt.
+
+~~~~~~~~~~~~~~~~~~
+
+Retrieve cart info based on user:
+
+The Item model was modified to include user: User -> so every cart item is tagged to a user now.
+
+In cart-service.ts:
+
+addProdToCart accepts user & product -> this is invoked from products-by-product-category component.
+Here in addProdToCart(), an item is created out of this and addTocart is invoked, which accepts item.
+Here in addToCart(), we simply push the item into cartItems list and invoke calculateTotals().
+Here in calculateTotals(), we simply go through the cart items, check each cart item user email with auth service user email and upon match, update the total quantity/total price subjects, so that cart status is updated in real time.
+
+Note that, when adding cart item we simply add item to cartItems list without checking user but when displaying cart summary, we need to show items of a particular user.
+
+For cart details also, we need to show items of a particular user.
+So, in cart-details component, we have another list - userCartItems  - into which cart items of matching user (email) alone is added and displayed.
+Note that userCartItems is not a subject because this display of items happens only when initializing cart-details component, i.e. when we try to go into the cart details page and need not reflect in real time like the cart summary numbers.
+
+In the removeFromCart() function of cart-service, we will remove the item.
+After removing the item, in cart-details component, we will go through the cart items and add the items matching user email to the other list - userCartItems.
+This is then used in cart-details component for display.
+
+Note that, for both adding to and removing from cart items list, in the cart-service we only update (i.e. push to or pop from) list.
+In cart-details component only, we have the logic for showing particular user's items alone from the cart items list.
+
+show user name at the top ?
+add product from product-details component ?
+clear cart functionality ?
+
+It might be better to store cart info in DynamoDB tables rather than local storage ...
+Add to or remove from cart would need API Gateway / lambda and could be much simpler.
+
+~~~~~~~~~~~~~~~~~~~~~
+
+How to run this project:
+
+1. Once you have copied the source code on to your local machine, run the below command in a VS Code Editor Terminal. Change the path as needed:
+D:\Vinod\Angular2024\retail-website-app\angular-retail-website-app> ng serve -o
+
+2. You can use tools like AWS App Runner, point to your code repository and the tool will create the required setup. 
+A public url will be provided which can then be used to access the website.
+

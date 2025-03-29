@@ -1,0 +1,87 @@
+================================= flex =================================
+
+
+If you want 2 elements side by side, create a parent div, say class= "row"
+Then in css:
+
+.row {
+
+display: flex,
+
+align-items: stretch | flex-start | flex-end | center | baseline;  -> vertical alignment
+justify-content: flex-start | flex-end | center | space-between | space-around | space-evenly; -> horizontal alignment
+
+flex: 0 1 auto -> short-hand for flex-grow: 0, flex-shrink: 1, flex-basis: auto, default values. flex: 0 0 300px -> each item a rigid width of 300px. note, flex-basis instead of width.
+gap: 30px -> distance between 2 elements, use this in flex instead of width/margin/padding. u can still use margin-bottom/margin-top etc.
+
+}
+
+Note: suppose a div container has 3 elements, instead of adding width/margin-right on each of the 3 elements, in flex, u can just add gap in the parent element.
+The gap will be applicable for teh 3 child elements.
+
+
+=================================== grid ===================================
+
+----------- grid container:
+
+.container {
+
+display: grid;
+
+grid-template-columns: 200px 200px 150px 100px; -> 4 columns, 2 with width of 200px, 1 with width of 150pc and another with width of 100px
+grid-template-rows: 300px 200px; -> 2 rows with width of 300px and 200px
+
+gap: 30px; -> gap of 30px between all elements
+row-gap: 60px; -> gap of 60px between rows
+column-gap: 30px; -> -> gap of 30px between columns
+
+justify-items: stretch | start | center | end; -> align items inside rows, columns horizontally
+align-items: stretch | start | center | end; -> align items inside rows, columns vertically
+
+justify-content: stretch | start | center | end; -> align entire grid inside container horizontally
+align-content: stretch | start | center | end; -> align entire grid inside container vertically
+
+height: 300px; -> height of container
+}
+
+Note that row-gap & column-gap options are available only for grid and not for flex.
+
+
+----------- grid items:
+
+grid-column: start-line / end-line | span number;
+grid-row: start-line / end-line | span number;
+
+ex:
+
+.item {
+grid-column: 2 / 5; -> place the item at cell starting at column 2 and ending at col 5
+grid-row: 1 / 2; -> place the item at cell starting at row 1 and ending at row 2
+justify-self: stretch | start | center | end; -> overwrite justify-items defined at container level
+align-self: stretch | start | center | end; -> overwrite align-items defined at container level
+}
+
+grid-column: 2 / 5; -> can also be written as grid-column: 2 / span 3; 
+grid column: 2 / -1; -> start at column 2 and go till the end
+
+
+----------- grid example:
+
+.container {
+
+display: grid;
+grid-template-columns: 1fr 300px; -> 2 columns, 2nd column is 300px wide, remaining space taken by 1st column
+column-gap: 75px;
+row-gap: 60px;
+align-items: start;
+
+}
+
+Note, it is quite common to define only grid-template-columns and not grid-template rows. Rows is usually controlled by the html content itself.
+
+.item {
+grid-column: 1 / -1;
+text-align: center;
+text-transform: uppercase;
+font-size: 14px;
+}

@@ -1,0 +1,12 @@
+This enhancement is to enable removal of specific items from cart or clear the cart from Cart details i.e. the cart-details component.
+
+In cart.service.ts, added removeFromCart(product: Product) & clearCart() functions.
+Had to enhance the calculateTotals function to accept another parameter - add / remove.
+Also accordingly changed the addToCart(product: Product) function to pass another parameter - add.
+
+In cart-details.component.html add the "Remove" button for each item and also a Clear Cart button at the end.
+The "Remove" button will invoke revokeItem method in cart-details.component.ts which in turn will invoke removeFromCart function from cart-service.
+The "Clear Cart" button will invoke clearCart method in cart-details.component.ts which in turn will invoke clearCart function from cart-service.
+
+Note how price & quantity changes in both cart-details component as well as cart-status component, as both components subscribe to the BehaviourSubjects price & quantity of cart-service.
+

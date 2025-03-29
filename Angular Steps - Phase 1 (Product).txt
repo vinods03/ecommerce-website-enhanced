@@ -1,0 +1,139 @@
+Summary of steps to be followed:
+
+================================ Phase 1 =================================
+
+Product Categories component that retrieves the list of Product Categories
+
+Products component that retrieves the list of Products based on the Product Category selected:
+Show image (that is clickable), name (that is clickable), price and "Add to Cart" button
+
+Product Details component that shows:
+image, name, description, price and "Add to Cart" button
+
+================================ Phase 2 =================================
+
+Cart Status component that shows the total quantity and total price
+
+Cart details component that shows for every product:
+image, name + price, quantity 
+and 
+finally, total quantity & total price (for all products in cart)
+
+Checkout component (from within the cart details page) that has the form to capture:
+Name, Address, Credit Card details
+and upon hitting the Purchase button, an entry is made in a dynamodb table - orders - and an order tracking number is returned to the user.
+
+
+============================== Phase 1 in detail ==========================
+
+Angular / VS Code:
+
+ng new angular-retail-website-app
+
+ng generate component components/product-categories 
+
+ng generate component components/products-by-product-category
+
+ng generate component components/product-details
+
+ng generate component components/cart-status
+
+ng generate component components/cart-details
+
+ng generate component components/checkout
+
+
+===============================
+
+AWS Console:
+
+Create lambda function retail_product_categories_fn that returns all product_categories from the dynamodb table - product_category
+
+Create lambda function retail_products_by_product_category_fn that returns all products, given a product category, from the dynamodb table - product
+
+Create lambda function retail_product_by_product_id_fn that returns a product, given a product id, from the dynamodb table - product
+
+Create a REST API - retail-website-app - in API Gateway. 
+Under this,  resources:
+
+product-categories tagged to retail_product_categories_fn (GET method)
+{product-category} tagged to retail_products_by_product_category_fn (GET method)
+{product-id} tagged to retail_product_by_product_id_fn (GET method) -> Under root (or any same level), 2 variable paths not allowed, so changed resource to product/{id}
+
+==========================================
+
+Angular / VS Code:
+
+ng generate service services/products
+
+This will have different functions that will invoke the different API Gateway Url's created above and act as the intermediary between angular components (product-categories, products-by-product-category, product-details) and the API/lambda/dynamodb layer.
+
+In this service:
+getProductCategories() function will invoke "product-categories" API Url (using httpClient) and will return an Observable of type ProductCategory[] 
+getProductsByCategory() function will invoke "{product-category}" API Url (using httpClient) and will return an Observable of type Product[]
+getProductById() function will invoke "product/{id}" API Url (using httpClient) and will return an Observable of type Product
+
+So, to be able to return objects/observables of type ProductCategory & Product:
+ng generate interface models/ProductCategory
+ng generate interface models/Product
+Update the interfaces as per DynamoDB table definition.
+
+Then update the functions 
+
+Make sure, in app.module.ts, HttpClientModule is imported.
+
+=========================================
+
+First, we want to display the product categories:
+
+Update product-categories.component.ts to invoke getProductCategories() function, store the product categories in an array
+Update product-categories.component.html to loop through the array and display the product category names
+
+Empty out the standard app.component.html and instead, just add the above selector:
+<app-product-categories></app-product-categories>
+
+Verify now your website and the list of product categories (product category names) must be displayed.
+
+If you click on a product category name, you should be able to list the products in that category, i.e.
+If you click on a product category name, you should be taken to ProductsByCategory component
+So, in product-categories.component.html, as you loop through the product category names, add a <a></a> for each product category name with routerLink and routerLinkActive.
+The routerLink will be category/{{ product_category.id }} and add corresponding route in app-routing.module.ts -> pointing to ProductsByCategoryComponent.
+
+In app.component.html, add a <router-outlet> section
+
+Verify now that you are taken to ProductsByCategoryComponent when you click on a Product Category name.
+
+==========================================
+
+Now we will update ProductsByCategoryComponent to display the products - image, name, price, Add to Cart button for every product
+
+Update products-by-product-category.ts to invoke getProductsByCategory() function and store the products in an array. 
+Note how, the category id passed from product-categories.component.html is captured here using this.route.snapshot.paramMap.has/get('id') and passed on to getProductsByCategory().
+Also, in ngOnInit(), you need to subscribe to paramMap and then invoke a function that will perform above logic.
+Otherwise, the categoryId being passed from product-categories.component.html to products-by-product-category.ts does not get captured and list of products doesnt change even though the route has changed.
+
+Update products-by-product-category.html to loop through the array and display the products.
+This involved couple of css styling changes as well (in the global styles.css file), to reduce the image size as well as eliminating the bullets:
+li {
+    list-style-type: none;
+}
+img {
+    width: 150px;
+    height: auto
+}
+
+Next i want to be able to click the image url or the product name and must be taken to the ProductDetails component that shows a detailed description of the product as well, apart from image, name and unit price. For this, add routerLink along with image url and name with a path - product/{{ product.id }} - and ensure the path is mapped to ProductDetailsComponent in app-routing.module.ts.
+
+==========================================
+
+Now we will update ProductByIdComponent to display the product details
+
+Update product-details.component.ts to invoke the getProductById() function and retrieve the product details.
+Note how, the product id passed from products-by-product-category.component.html is captured here using this.route.snapshot.paramMap.get('id') and passed on to getProductById().
+Also, in ngOnInit(), you need to subscribe to paramMap and then invoke a function that will perform above logic.
+
+Update product-details.component.html to display all required product attributes.
+
+
+
++++++++++++++++++++++++++++++  This marks the completion of Phase 1 +++++++++++++++++++++++++++++++

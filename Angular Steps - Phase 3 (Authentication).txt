@@ -1,0 +1,74 @@
+Firebase setup (authentication backend):
+
+https://console.firebase.google.com/u/0/
+
+Create project -> ng-retail-website -> Authentication -> Choose and Enable "Email/Password" as the Sign-In provider
+
+From the Project Overview - Project Settings - note down the Web API Key 
+
+Refer: https://firebase.google.com/docs/reference/rest/auth for important documentation on the signup / signin endpoints - like response data, error codes etc.
+
+Note that firebase returns:
+
+localId	-> The uid of the authenticated user (controls access - authentication info)
+idToken -> The Firebase Auth ID token for the authenticated user (controls access level - authorization info)
+expiresIn -> The number of seconds in which the ID token expires
+also, email -> the user's email is tied to above info
+
+Using this info, you can create a User.
+
+Without creating a user, you can perform basic autheentication, but if you have to perform auto-logout after some time or even to perform manual logout, you need to create a User
+
+================= Angular
+
+ng g c compnents/authentication
+
+ng g s services/authentication
+
+In authentication.service.ts, first create simple signup, signin methods without tapping the response from firebase / creating a user 
+
+In authentication.component.ts, create email/password form group and write a method that will subscribe to signup or signin methods created above and upon success, route to home page upon success.
+
+I had to create a new home component, clear out app.component.html into home.component.html and have only router-outlet in app.component.html.
+Without this, the authentication form and part of website were getting mixed up. app-routing.module.ts had to be updated.
+ng g c components/home
+
+Once the basic authentication is done, create a user class that can accept firebase authentication response parameters.
+
+ng g i models/user - then convert this to a class
+
+In authentication.service.ts, enhance signup and signin methods to tap the firebase response, create a user object using above class and also setup autoLogout, manual signout methods.
+Note that autoLogout is optional but manual signout is mandatory.
+Note that, when posting to the firebase signup or signin URLs, you should expect a response of type AuthResponseData, else you will not be able to access the response parameters like expiresIn. You can have a separate model for this or create an interface in the same authentication.service.ts file.
+
+In home.component.html, add a Logout button and in home.component.ts, write a logout method that invokes signout method in authentication.service.ts.
+
+Upon successful signin / signup, routing to home component only showed the top nav bar and side menu bar and not the products. The products showed up only when you click on a category.
+So, i routed to /category/1 instead upon successful authentication.
+You can still click on other categories and view the products of those categories.
+So, at this point, home component becomes redundant.
+
+Now, enhance authentication.component.ts for authentication error handling.
+In the subscribe part to the auth-service functions signup & signin, apart from data capture error data as well and handle the different error responses.
+Enhance authentication.component.html to show the appropriate error message.
+
+=== implement authguard - so that user is not able to go to other pages directly without authenticating
+
+ng generate class components/authentication/auth.guard
+
+implement the canActivate method - If valid user is found, it returns true else redirects to Authentication page.
+
+In app-routing.module.ts, in the paths that you want to protect, add this class -> will be needed for all components except the authentication component
+
+==== keep user data between page refreshes using auto-login ===========================================================
+
+In authentication.service.ts -> signUp() & signIn() methods, use localStorage the store the logged-in user details
+
+In authentication.service.ts -> add the autoLogin() to retrieve logged-in user details, if any
+
+In app.component.ts -> implement the OnInit method and invoke the above autoLogin -> Note that AppComponent is entry point to your application (during initial login or during refresh)
+
+When you refresh your page now, you will not be taken to authentication page now. You will remain in the page where you are currently at.
+
+
+

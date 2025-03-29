@@ -1,0 +1,87 @@
+Now, let us see how to make the "add to cart" button work
+
+In products-by-product-category.component.html, add button & the click method addToCart()
+
+In products-by-product-category.component.ts, create the addToCart(product) method
+This method will invoke a method in a service that will hold an array of cart items and calculate the totals: totalPrice and totalQuantity
+
+Created a separate service for this, but can handled in existing ProductsService itself: ng generate service services/cart:
+Create addToCart() method that will accept the product added, add it to cart items array and calculate total quantity and total price.
+
+Now in CartStatus component, i should display the total price and total quantity.
+
+So, in cart-status.component.ts, i could subscribe to addToCart() method of cart service, but this works well for returning and subscribing to objects/array of objects.
+
+Since i want to subscribe to variables, i changed the type of totalPrice and totalQuantity in cart service to behaviour subject instead of number.
+I had to create separate variables that store quantity & price and then use these variables to emit the behaviour subjects
+
+Update cart-status.component.html to display the total price and total quantity and in app.component.html, add <app-cart-status> selector and verify.
+
+===================================================
+
+Now, the same functionality "add to cart" needs to be implemented in product-details.component.html/ts
+
+In product-details.component.html, add button & the click method addToCart()
+
+product-details.component.ts, create the addToCart(product) method that invokes the service method created above - and the total price and total quantity should get updated now. Verify.
+
+====================================================
+
+So far, we have only shown the Cart Summary i.e. total price and total quantity. We should show the Cart details next.
+
+In cart-details.component.ts, subscribe to the cartService and get the cart items.
+
+In cart-details.component.html, loop through the items and display the items - also totals are needed. See if you can reuse cart-status.component.html for this.
+
+===================================================
+
+Next is the checkout process. 
+Add the selector <app-checkout></app-checkout> at the end of app.component.html.
+
+In checkout.component.ts/html, create the form. 
+In app.module.ts, import ReactiveFormsModule. 
+Note the use of getter methods in ts. Without these, form controls in html will not work.
+
+To display list of countries in the form, created lambda function retail_country_get_all_fn that queries dynamodb table country.
+Created resource /countries in API retail-website-app integrated with above lambda function.
+Use this API url in cart.service.ts and create a method that fetches countries
+Invoke the above method/service in checkout.component.ts to populate Country[] -> after form group and within ngOnInit
+To do above, ng generate interface models/country & update the interface as per dynamodb table structure.
+Use this array in checkout.component.html
+
+Upon country selection, correct list of states must be displayed.
+To display list of states in the form, created lambda function retail_get_states_by_country_fn that queries dynamodb table state.
+Created resource /countries in API retail-website-app integrated with above lambda function.
+Use this API url in cart.service.ts and create a method that fetches states, given a country id.
+Invoke the above method/service in checkout.component.ts to populate State[] -> after form ngOnInit. This method is invoked upon change in country in html.
+Note how the checkout.component.html/ts invoke getStatesByCountry() without parameter and in the ts function, country id is retrieved from form and passed to service function as a parameter. Note how [ngValue] is used in html to be able to retrieve country.id.
+To do above, ng generate interface models/state & update the interface as per dynamodb table structure.
+Use this array in checkout.component.html
+
+To display, years and months for credit card expiry, update cart.service.ts with getMonths() & getYears() functions that return observables of type number[].
+Invoke the above methods/service in checkout.component.ts to populate year[] & month[] -> after form group and within ngOnInit.
+Use these arrays in checkout.component.html
+
+===================================================
+
+Now, once the checkout form is filled and Submit button is clicked, we need to make an entry into the database. This marks the creation of an order.
+We will create a Purchase object that is made of customer/address/order-items/order-summary details captured in the form and elsewhere. 
+Then insert this object into dynamodb table - order.
+
+ng generate class purchase & add required variables
+
+In cart.service.ts: (createOrderUrl can be blank initially and can be updated once api-lambda is ready.
+createOrder(purchase: Purchase) {
+    return this.httpClient.post(this.createOrderUrl,purchase)
+  }
+Note that the POST function requires an object to be passed as parameter and this object can be accessed by lambda with the "event" parameter.
+
+In AWS Console, create lambda function: retail_capture_order_fn that will load details captured from event, into teh dynamodb table - order - and return an order_id
+Create a resource "purchase" in API Gateway, with a POST method integrated with above function. Enable CORS, deploy, note down the API url and update in cart.service.ts.
+
+Going back to Angular, in checkout.component.ts, subscribe to the createOrder function in cart.service.ts after constructing a purchase object from the form and elsewhere.
+Capture the order-id value returned from lambda/api and display it to the user.
+No change in checkout.component.html for this.
+
+
+

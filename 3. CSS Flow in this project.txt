@@ -1,0 +1,80 @@
+app.component.html:
+
+common "header" class and router-outlet.
+
+The header class is flex.
+keep the 3 items in the header equally distanced, so justify-content is space-between.
+you need the header spread across the page, hence gap of 560px between the items.
+height of 100px to get a fairly thick header.
+
+Note the usage of img-header class for picture size.
+
+----------------------------------- forms ----------------------------------------
+
+authentication.component.html & checkout.component.html:
+
+This has a form. So basically all labels / input boxes will come one after the other.
+Note: without below, the form was too wide:
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+The "form-class" aligns the form horizontally & vertically at the center.
+The label class controls font-size, font-weight etc of labels.
+The select class controls drop-down box look & feel (checkout form).
+The input class controls the input boxes look & feel.
+
+No special styling for inbuilt class form-control.
+For the class "text-danger", we define color: red & justify horizontally at the center.
+
+Note label class is in-built & form-class is custom.
+So in css, label class will be specified as label & form-class will be specified as .form-class.
+
+------------------------------------
+
+products-by-product-category.component.html:
+
+master class is "products-by-categories" & the child classes are "aside" and "product-list".
+
+products-by-categories is defined as a grid of 2 columns - aside 200px & product-list 1000px.
+aside is flex but items inside are arranged downwards, so flex-direction is column.
+product-list is again a grid of 4 columns, each of width 300px.
+
+-------------------------------------
+
+product-details.component.html:
+
+The main class is "product-details" which is neither flex nor grid and it is centered.
+This class has other classes "product-name", "product-description", "product-price" for font size, font weight, margin, color.
+These are also neither flex nor grid.
+The width property in "product-description" class helped in better centering and better looks.
+
+We have a different img class here for bigger image than the one in the header.
+
+------------------------------------------
+
+cart-status.component.html:
+
+The main class is "cart-status".
+Note that the icon & the numbers (price + quantity) next to each other. But, the numbers (price & quantity) must be below each other.
+So we have another class "cart-status-numbers" under cart-status for holding the numbers one below the other -> vertical.
+img & cart-status-numbers are the childrn of cart-status -> horizontal.
+A gap of 10px between the icon and the numbers.
+
+--------------------------------------------
+
+cart-details.component.html:
+
+The master class is "cart-details".
+Under this 4 classes: "cart-items" & "total-quantity-cart-details"/"total-price-cart-details" & "cart-final" - one below the other.
+So "cart-details" has display: flex & flex-direction as column.
+
+"cart-items" must show product name, price, quantity, remove button next to each other -> so display: flex (& default flex-direction row takes into effect).
+"total-quantity-cart-details"/"total-price-cart-details" come next - one below the other. You couldd have a master class for these 2 and specify flex-direction as column.
+"cart-final" has all buttons next to each other  -> so display: flex (& default flex-direction row takes into effect).
+
+
+
+
+

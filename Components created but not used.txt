@@ -1,0 +1,5 @@
+i had a separate header component initially for common header but later this was never used. 
+Instead used above method.
+
+Note that the home component is also not used.
+products-by-product-category.html has aside and main sections instead.

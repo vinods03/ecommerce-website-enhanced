@@ -1,0 +1,21 @@
+Note that in cart.service.ts, cartItems is a normal array whereas Price & Quantity are BehaviourSubjects.
+
+cartItems: Item[] = [];
+
+totalPrice: Subject<number> = new BehaviorSubject<number>(0);
+totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
+
+
+Why is this so ?
+
+Suppose you add 2 products into cart.
+Then you remove 1 product from cart.
+
+You should see the cart-status numbers (next to cart icon) get updated immediately.
+Also in cart-details, the numbers at the bottom should get updated immediately. 
+If you have totalPrice & totalQuantity as normal numbers the numbers at the bottom will not reflect immediately. 
+You have to go out of cart-details page and come back into the page to see the updated numbers.
+
+For real-time communication between 2 components - products-by-product-category & cart-status/cart-details - we need BehaviourSubject and in the corresponding components, we will subscribe to the values.
+
+On the other hand, in the case of cartItems, even though there is cross-component communication involved at the time of cart item addition between products-by-product-category & cart-details, the items have to be shown only when you go to the cart-details page. At the time of cart item removal, even though updated items have to be shown immediately, there is no cross-component communication involved. Hence cartItems need not be a BehaviorSubject but a normal array.

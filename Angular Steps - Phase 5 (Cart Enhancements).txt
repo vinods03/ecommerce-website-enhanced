@@ -1,0 +1,46 @@
+In cart-details, if i add the same product twice, it shows as 2 separate items.
+I want to show it as a single item with a quantity of 2.
+
+So here is where i realised the need for a separate Item interface different from Product interface.
+This will have addnl attribute quantity and wont have some of the product attributes like sku, dateCreated etc.
+
+
+ng g i models/Item
+
+export interface Item {
+  category_id: number;
+  unit_price: number;
+  image_url: string;
+  id: number;
+  name: string;
+  description: string;
+  quantity: number;
+}
+
+Had to make quite a few changes:
+
+Started with cart-details.component.html - added a placeholder for item.quantity - forced to change Product[] to Item[] in cart-details.component.ts
+Also forced to make changes in styles.css - added product-quantity class and adjusted product-name width
+
+Next, we will look at products-by-product-category.html & ts files because cart items are added from here.
+Removed the existing addToCart(product) function and instead added:
+addProdToCart(product: Product) {
+    this.cartService.addProdToCart(product);
+  }
+In cart.service.ts -> added this function addProdToCart.
+From product attributes, created an Item object and then invoked addToCart(item).
+In this function, we have the logic to update item quantity.
+The calculateTotals function was also updated to take into account the item quantity when calculating the total number of items in the cart.
+
+In product-details.component.ts & html files, replaced addTocart function with addProdToCart function.
+In the html file, even though the rendering was happening fine, the console was throwing an error:
+ERROR TypeError: Cannot read properties of undefined (reading 'imageUrl')
+Went through StackOverflow. This article was good:
+"I can only assume that your "shared" service isn't resolving productByBarCode variable before view tries to reach it. 
+In that case your code is trying to resolve imageUrl from null.
+You can just *ngIf check if productByBarCode is truthy/falsy like this:
+<td>
+    <img *ngIf="productByBarCode" align="center [src]="productByBarCode.imageUrl" />
+</td>
+"
+So added this: *ngIf="product" and the error was eliminated.
