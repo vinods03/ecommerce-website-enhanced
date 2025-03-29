@@ -1,0 +1,13 @@
+<div class="header">
+  <img class="img-header" src="assets/images/online-shopping.png" />
+
+  <a routerLink="/cart-details">
+    <app-cart-status></app-cart-status>
+  </a>
+
+  <div class="user-info" *ngIf="user">
+    <div class="welcome-message">{{ user.email }}</div>
+    <button class="logout-button" (click)="logout()">Logout</button>
+  </div>
+</div>
+<router-outlet></router-outlet>

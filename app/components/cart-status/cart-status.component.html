@@ -1,0 +1,7 @@
+<div class="cart-status" *ngIf="user">
+  <img class="img-header" src="assets/images/shopping-cart.png" />
+  <div class="cart-status-numbers">
+    <p class="total-quantity">{{ total_quantity }}</p>
+    <p class="total-price">{{ total_price | currency : "USD" }}</p>
+  </div>
+</div>

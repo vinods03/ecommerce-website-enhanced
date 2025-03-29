@@ -1,0 +1,28 @@
+<div class="products-by-categories">
+  <div class="aside">
+    <app-product-categories></app-product-categories>
+  </div>
+
+  <div class="product-list">
+    <li *ngFor="let product of products">
+      <a routerLink="/product/{{ product.id }}" routerLinkActive="active-link">
+        <img src="{{ product.image_url }}" />
+      </a>
+      <br />
+      <a
+        routerLink="/product/{{ product.id }}"
+        routerLinkActive="active-link"
+        class="product-name"
+      >
+        {{ product.name }}
+      </a>
+      <br />
+      <div class="product-price">
+        {{ product.unit_price | currency : "USD" }}
+      </div>
+      <br />
+
+      <button (click)="addProdToCart(product)">Add to cart</button>
+    </li>
+  </div>
+</div>

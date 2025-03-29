@@ -1,0 +1,14 @@
+<div class="product-details">
+  <img *ngIf="product" src="{{ product.image_url }}" />
+  <div *ngIf="product" class="product-name">{{ product.name }}</div>
+  <div *ngIf="product" class="product-description">
+    {{ product.description }}
+  </div>
+  <div *ngIf="product" class="product-price">
+    {{ product.unit_price | currency : "USD" }}
+  </div>
+
+  <button (click)="addProdToCart(product)">Add to Cart</button>
+
+  <button (click)="goBack()" class="go-back-button">Go Back to Shopping</button>
+</div>

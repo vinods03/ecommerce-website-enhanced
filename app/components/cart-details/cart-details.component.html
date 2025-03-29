@@ -1,0 +1,30 @@
+<div class="cart-details">
+  <li class="cart-items" *ngFor="let item of userCartItems">
+    <img src="{{ item.image_url }}" class="img-cart-details" />
+
+    <div class="product-name">
+      {{ item.name }}
+    </div>
+    <div class="product-price">
+      {{ item.unit_price | currency : "USD" }}
+    </div>
+    <div class="product-quantity">
+      {{ item.quantity }}
+    </div>
+    <button class="remove-button" (click)="removeItem(item)">Remove</button>
+  </li>
+
+  <div class="total-quantity-cart-details">
+    # of items: {{ total_quantity }}
+  </div>
+  <div class="total-price-cart-details">
+    Total Price: {{ total_price | currency : "USD" }}
+  </div>
+  <div class="cart-details-final">
+    <button (click)="clearCart()" class="clear-cart-button">Clear Cart</button>
+    <button routerLink="/checkout">Checkout</button>
+    <button (click)="goBack()" class="go-back-button">
+      Go Back to Shopping
+    </button>
+  </div>
+</div>
